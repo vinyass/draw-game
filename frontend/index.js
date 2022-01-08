@@ -102,20 +102,39 @@ function startGame(data) {
   const gameContainer = document.querySelector(".game-container");
   spinner.style.display = "none";
   gameContainer.style.display = "flex";
+  canvas = document.getElementById("canvas");
+  const parent = document.querySelector(".canvas-container");
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  ctx = canvas.getContext("2d");
   if (currentPlayer === 1) {
     canvas.addEventListener("mousedown", handleMouseDown);
     canvas.addEventListener("mouseup", handleMouseUp);
     canvas.addEventListener("mousemove", handleMouseMove);
 
-    canvas.addEventListener("touchstart", handleMouseDown);
-    canvas.addEventListener("touchmove", handleMouseUp);
-    canvas.addEventListener("touchend", handleMouseMove);
+    function touchstart(event) {
+      handleMouseDown(event.touches[0]);
+    }
+    function touchmove(event) {
+      handleMouseMove(event.touches[0]);
+      event.preventDefault();
+    }
+    function touchend(event) {
+      handleMouseUp(event.changedTouches[0]);
+    }
+
+    canvas.addEventListener("touchstart", touchstart, false);
+    canvas.addEventListener("touchmove", touchmove, false);
+    canvas.addEventListener("touchend", touchend, false);
+
     renderWords(wordsToBeGuessed);
   }
   if (currentPlayer === 2) {
     renderGuessWordForm();
   }
-  startTimer(30);
+  startTimer(180);
 }
 
 function renderWords(words) {
@@ -143,12 +162,6 @@ function init() {
   homeScreen.style.display = "none";
   container.style.display = "flex";
   spinner.style.display = "flex";
-  canvas = document.getElementById("canvas");
-  const parent = document.querySelector(".canvas-container");
-  //canvas.width = parent.offsetWidth;
-  //canvas.height = parent.offsetHeight;
-
-  ctx = canvas.getContext("2d");
 }
 
 function initGame(player) {

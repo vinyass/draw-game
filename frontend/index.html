@@ -24,6 +24,14 @@
         <div class="spinner">Waiting for other player to join...</div>
         <div class="game-container">
             <div class="left">
+                 <div class="canvas-container">
+                    <canvas id="canvas" height="700" width="700">
+            
+                    </canvas>
+                </div>
+            </div>
+            
+            <div class="right">
                 <div class="toolbar">
                     <div class="toolbar-item">
                         <button id="clearBtn">Clear</button>
@@ -36,15 +44,6 @@
                         <label for="thickness">Thickness</label>
                     </div>
                 </div>
-               
-                <div class="canvas-container">
-                    <canvas id="canvas" height="700" width="700">
-            
-                    </canvas>
-                </div>
-            </div>
-            
-            <div class="right">
                 <div class="status-container">
                     <ul class="guess-words"></ul>
                     <form id="guessedWordForm" onsubmit="return false">
@@ -59,8 +58,6 @@
                 </div>
             </div>
         </div>
-        
-       
     </div>
   
    

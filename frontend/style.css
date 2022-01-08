@@ -52,18 +52,24 @@ body {
   width: 100%;
   padding: 10px 20px;
   display: none;
+  flex-direction: column;
+}
+
+@media only screen and (min-device-width: 480px) {
+  .game-container {
+    flex-direction: row;
+  }
 }
 
 .left {
-  width: 70%;
   border: 1px solid grey;
   padding: 10px;
   display: flex;
+  flex: 1;
   flex-direction: column;
 }
 
 .right {
-  width: 30%;
   border: 1px solid grey;
   padding: 10px;
 }
@@ -100,9 +106,10 @@ canvas {
 .canvas-container {
   border: 2px solid black;
   border-radius: 2px;
-  height: calc(100% - 60px);
   width: 100%;
+  height: 100%;
   align-self: center;
+  display: block;
 }
 
 .canvas {
@@ -111,6 +118,7 @@ canvas {
 
 #canvas {
   cursor: crosshair;
+  display: block;
 }
 
 .status-container {
@@ -118,12 +126,11 @@ canvas {
   justify-content: space-between;
   padding: 10px;
   flex-direction: column;
-  height: 100%;
 }
 
 .status-container ul {
   list-style-type: decimal;
-  max-height: 400px;
+  max-height: 300px;
   font-size: 20px;
   font-weight: bold;
   overflow-x: auto;
@@ -137,6 +144,7 @@ canvas {
 .status-container .status-timer {
   font-size: 20px;
   font-weight: bold;
+  text-align: right;
 }
 
 #guessedWordForm {
