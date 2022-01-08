@@ -13,7 +13,7 @@ let canvas,
 var mode = "brush";
 var lastLine;
 
-const socket = io("https://guarded-woodland-49277.herokuapp.com/0");
+const socket = io("https://guarded-woodland-49277.herokuapp.com/");
 
 socket.on("init", initGame);
 socket.on("unknownCode", () => throwError("unknown code entered"));
