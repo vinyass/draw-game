@@ -55,18 +55,13 @@ body {
   flex-direction: column;
 }
 
-@media only screen and (min-device-width: 480px) {
-  .game-container {
-    flex-direction: row;
-  }
-}
-
 .left {
   border: 1px solid grey;
   padding: 10px;
   display: flex;
   flex: 1;
   flex-direction: column;
+  height: 70%;
 }
 
 .right {
