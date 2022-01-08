@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"
+    integrity="sha384-DkkWv9oJFWLIydBXXjkBWnG1/fuVhw8YPBq37uvvD6WSYRFRqr21eY5Dg9ZhmWdy"
+    crossorigin="anonymous"></script>    <title>Document</title>
+</head>
+<body>
+    <div class="home_screen">
+        <h1>Draw Game</h1>
+        <button id="newGameBtn">Create New Game</button>
+        <span>OR</span>
+        <div class="join-game-container">
+            <input id="gameCode" type="text" placeholder="enter game code"/>
+            <button id="joinGameBtn">Join Game</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="game-code"></div>
+        <div class="spinner">Waiting for other player to join...</div>
+        <div class="game-container">
+            <div class="left">
+                <div class="toolbar">
+                    <div class="toolbar-item">
+                        <button id="clearBtn">Clear</button>
+                    </div>
+                    <div class="toolbar-item">
+                        <input type="color" id="colorPicker">
+                    </div>
+                    <div class="toolbar-item">
+                        <input id="thickness" type="range" min="1" max="20">
+                        <label for="thickness">Thickness</label>
+                    </div>
+                </div>
+               
+                <div class="canvas-container">
+                    <canvas id="canvas" height="700" width="700">
+            
+                    </canvas>
+                </div>
+            </div>
+            
+            <div class="right">
+                <div class="status-container">
+                    <ul class="guess-words"></ul>
+                    <form id="guessedWordForm" onsubmit="return false">
+                        <input required id="guessedWord" type="text">
+                        <button id="submitBtn" type="submit">Submit</button>
+                    </form>
+                    <ul class="guesses"></ul>
+                    <div class="score-container">
+                        Your score: <span id="scoreDisplay"></span>
+                    </div>
+                    <span id="safeTimerDisplay" class="status-timer"></span>
+                </div>
+            </div>
+        </div>
+        
+       
+    </div>
+  
+   
+</body>
+<script src="./index.js" type="module"></script>
+</html>
