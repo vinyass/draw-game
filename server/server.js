@@ -2,7 +2,7 @@ const words = require("./words.json");
 
 const io = require("socket.io")({
   cors: {
-    origin: "*",
+    origin: "https://eager-hugle-b9e50f.netlify.app/",
   },
 });
 const clientRooms = {};
