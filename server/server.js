@@ -1,8 +1,11 @@
 const words = require("./words.json");
 
-const io = require("socket.io")({
+const PORT = process.env.PORT || 4000;
+
+const io = require("socket.io")(PORT, {
   cors: {
-    origin: "https://eager-hugle-b9e50f.netlify.app/",
+    origin: "*",
+    methods: ["GET", "POST"],
   },
 });
 const clientRooms = {};
@@ -44,6 +47,7 @@ io.on("connection", (client) => {
 
   function handleNewGame() {
     let roomName = makeid();
+
     clientRooms[client.id] = roomName;
     client.emit("gameCode", roomName);
 
@@ -78,9 +82,7 @@ io.on("connection", (client) => {
   }
 });
 
-const PORT = process.env.PORT || 4000;
-
-io.listen(PORT);
+//io.listen(PORT);
 
 function makeid() {
   return `${Math.floor(Math.random() * 90000) + 10000}`;

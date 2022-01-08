@@ -266,6 +266,7 @@ function startTimer(duration = 30) {
 
 function afterTimerExpired() {
   countPoints();
+  document.getElementById("guessedWordForm").style.display = "none";
 }
 
 function countPoints() {
