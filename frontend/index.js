@@ -6,18 +6,23 @@ let canvas,
   thickness = 5,
   currentPlayer,
   correctGuesses,
+  stage,
+  layer,
   wordsToBeGuessed;
 
-const socket = io("https://guarded-woodland-49277.herokuapp.com/");
+var mode = "brush";
+var lastLine;
+
+const socket = io("https://guarded-woodland-49277.herokuapp.com/0");
 
 socket.on("init", initGame);
 socket.on("unknownCode", () => throwError("unknown code entered"));
 socket.on("tooManyPlayers", () => throwError("already full"));
 socket.on("gameCode", renderGameCode);
 socket.on("startGame", startGame);
-socket.on("paintStart", paintStart);
-socket.on("paint", paint);
-socket.on("paintStop", paintStop);
+socket.on("paintStart", paintDrawStart);
+socket.on("paint", paintDraw);
+socket.on("paintStop", paintDrawStop);
 socket.on("clearDrawing", clearDrawing);
 socket.on("renderGuessedWord", renderGuessedWord);
 
@@ -94,6 +99,25 @@ function renderGameCode(gameCode) {
   gameCodeElem.innerText = `Your game code is: ${gameCode}`;
 }
 
+function paintStart(pos, thickness, color) {
+  lastLine = new Konva.Line({
+    stroke: color,
+    strokeWidth: thickness,
+    globalCompositeOperation:
+      mode === "brush" ? "source-over" : "destination-out",
+    // round cap for smoother lines
+    lineCap: "round",
+    // add point twice, so we have some drawings even on a simple click
+    points: [pos.x, pos.y, pos.x, pos.y],
+  });
+  layer.add(lastLine);
+}
+
+function paint(pos) {
+  var newPoints = lastLine.points().concat([pos.x, pos.y]);
+  lastLine.points(newPoints);
+}
+
 function startGame(data) {
   data = JSON.parse(data);
   wordsToBeGuessed = data.words;
@@ -102,32 +126,45 @@ function startGame(data) {
   const gameContainer = document.querySelector(".game-container");
   spinner.style.display = "none";
   gameContainer.style.display = "flex";
-  canvas = document.getElementById("canvas");
-  const parent = document.querySelector(".canvas-container");
-  canvas.style.width = "100%";
-  canvas.style.height = "100%";
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-  ctx = canvas.getContext("2d");
+
+  const containerElem = document.getElementById("container");
+  var width = containerElem.offsetWidth;
+  var height = containerElem.offsetHeight - 125;
+  // first we need Konva core things: stage and layer
+  stage = new Konva.Stage({
+    container: "container",
+    width: width,
+    height: height,
+  });
+
+  layer = new Konva.Layer();
+  stage.add(layer);
   if (currentPlayer === 1) {
-    canvas.addEventListener("mousedown", handleMouseDown);
-    canvas.addEventListener("mouseup", handleMouseUp);
-    canvas.addEventListener("mousemove", handleMouseMove);
+    stage.on("mousedown touchstart", function (e) {
+      drawing = !timerExpired;
+      var pos = stage.getPointerPosition();
+      paintStart(pos, thickness, color);
+      socket.emit("drawStart", JSON.stringify({ pos, thickness, color }));
+    });
 
-    function touchstart(event) {
-      handleMouseDown(event.touches[0]);
-    }
-    function touchmove(event) {
-      handleMouseMove(event.touches[0]);
-      event.preventDefault();
-    }
-    function touchend(event) {
-      handleMouseUp(event.changedTouches[0]);
-    }
+    stage.on("mouseup touchend", function () {
+      drawing = false;
+      socket.emit("drawStop");
+    });
 
-    canvas.addEventListener("touchstart", touchstart, false);
-    canvas.addEventListener("touchmove", touchmove, false);
-    canvas.addEventListener("touchend", touchend, false);
+    // and core function - drawing
+    stage.on("mousemove touchmove", function (e) {
+      if (!drawing) {
+        return;
+      }
+
+      // prevent scrolling on touch devices
+      e.evt.preventDefault();
+
+      const pos = stage.getPointerPosition();
+      paint(pos, thickness, color);
+      socket.emit("draw", JSON.stringify(pos));
+    });
 
     renderWords(wordsToBeGuessed);
   }
@@ -179,70 +216,35 @@ function getPosition(e) {
   return { x, y };
 }
 
-function handleMouseDown(e) {
-  drawing = !timerExpired;
-  if (drawing) {
-    ctx.lineWidth = thickness;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = color;
-    const { x, y } = getPosition(e);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    socket.emit("drawStart", JSON.stringify({ x, y, thickness, color }));
-  }
-}
-
-function paintStart(data) {
+function paintDrawStart(data) {
   if (currentPlayer === 2) {
-    const { x, y, thickness, color } = JSON.parse(data);
-    ctx.lineWidth = thickness;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
+    const { pos, thickness, color } = JSON.parse(data);
+    paintStart(pos, thickness, color);
   }
 }
 
-function handleMouseMove(e) {
-  if (!drawing) return;
-
-  const { x, y } = getPosition(e);
-  ctx.lineTo(x, y);
-  ctx.stroke();
-  drawing = !timerExpired;
-  socket.emit("draw", JSON.stringify({ x, y }));
-}
-
-function paint(data) {
+function paintDraw(data) {
   if (currentPlayer === 2) {
-    const { x, y } = JSON.parse(data);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    const pos = JSON.parse(data);
+    paint(pos);
   }
 }
 
-function handleMouseUp(e) {
-  if (drawing) {
-    ctx.closePath();
-    drawing = false;
-    socket.emit("drawStop");
-  }
-}
-
-function paintStop() {
+function paintDrawStop() {
   if (currentPlayer === 2) {
-    ctx.closePath();
   }
 }
 
 function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stage.clear();
+  layer.removeChildren();
   socket.emit("clearDrawing");
 }
 
 function clearDrawing() {
   if (currentPlayer === 2) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stage.clear();
+    layer.removeChildren();
   }
 }
 
